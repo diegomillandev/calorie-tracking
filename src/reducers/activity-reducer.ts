@@ -1,8 +1,7 @@
 import { Activity } from '../types/index';
 
-export type ActivityActions = {
-    type: 'save-activity';
-    payload: { newActivity: Activity };
+export type ActivityActions = { 
+    type: 'save-activity'; payload: { newActivity: Activity };
 };
 
 export type ActivityState = {
@@ -14,8 +13,7 @@ export const initialState: ActivityState = {
 };
 
 export const activityReducer = (
-    state: ActivityState = initialState,
-    action: ActivityActions
+    state: ActivityState = initialState, action: ActivityActions
 ) => {
     if (action.type === 'save-activity') {
         return {
