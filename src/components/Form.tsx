@@ -1,11 +1,12 @@
-import { useState, ChangeEvent, FormEvent, Dispatch } from 'react';
-import { v4 as uuidv4 } from 'uuid'
+import { useState, ChangeEvent, FormEvent, Dispatch, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { categories } from '../const';
 import { Activity } from '../types';
-import { ActivityActions } from '../reducers/activity-reducer';
+import { ActivityActions, ActivityState } from '../reducers/activity-reducer';
 
 type FormProps = {
     dispatch: Dispatch<ActivityActions>;
+    state: ActivityState;
 };
 
 const initialState: Activity = {
@@ -13,10 +14,20 @@ const initialState: Activity = {
     category: 0,
     description: '',
     calories: 0,
-}
+};
 
-export const Form = ({ dispatch }: FormProps) => {
+export const Form = ({ dispatch, state }: FormProps) => {
     const [activity, setActivity] = useState<Activity>(initialState);
+    useEffect(() => {
+        if (state.activeId) {
+            const selectedActivity: Activity = state.activities.filter(
+                (activity) => activity.id === state.activeId
+            )[0];
+            if (selectedActivity) {
+                setActivity(selectedActivity);
+            }
+        }
+    }, [state.activeId]);
 
     const handleChange = (
         e: ChangeEvent<HTMLSelectElement> | ChangeEvent<HTMLInputElement>
@@ -30,7 +41,7 @@ export const Form = ({ dispatch }: FormProps) => {
         });
     };
 
-    const isValidActivty = () => {
+    const isValidActivity = () => {
         const { category, description, calories } = activity;
         return category > 0 && description.trim() !== '' && calories > 0;
     };
@@ -39,17 +50,21 @@ export const Form = ({ dispatch }: FormProps) => {
         const name = categories.find(
             (category) => category.id === activity.category
         )?.name;
-        return `Add ${name ? name : 'Activity'}`;
+        return `${state.activeId ? 'Update' : 'Add'} ${
+            name ? name : 'Activity'
+        }`;
     };
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        dispatch({ type: 'save-activity', payload: { newActivity: activity } });
-
+        dispatch({
+            type: 'save-activity',
+            payload: { newActivity: activity },
+        });
         setActivity({
             ...initialState,
-            id: uuidv4()
-        })
+            id: uuidv4(),
+        });
     };
 
     return (
@@ -111,7 +126,7 @@ export const Form = ({ dispatch }: FormProps) => {
                 type="submit"
                 value={changeTextInput()}
                 className=" bg-gray-800 text-white p-2 rounded-lg w-full cursor-pointer hover:bg-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
-                disabled={!isValidActivty()}
+                disabled={!isValidActivity()}
             />
         </form>
     );

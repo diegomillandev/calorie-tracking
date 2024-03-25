@@ -1,12 +1,15 @@
-import { useMemo } from 'react';
+import { Dispatch, useMemo } from 'react';
 import { categories } from '../const';
 import { Activity } from '../types';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { ActivityActions } from '../reducers/activity-reducer';
 
 type ActivityListProps = {
     activities: Activity[];
+    dispatch: Dispatch<ActivityActions>;
 };
 
-export const ActivityList = ({ activities }: ActivityListProps) => {
+export const ActivityList = ({ activities, dispatch }: ActivityListProps) => {
     const categoryName = useMemo(
         () => (category: Activity['category']) =>
             categories.map((cat) => (cat.id === category ? cat.name : '')),
@@ -43,7 +46,32 @@ export const ActivityList = ({ activities }: ActivityListProps) => {
                             {activity.calories} {''} <span>Calories</span>
                         </p>
                     </div>
-                    <div className=""></div>
+                    <div className="flex gap-5 items-center">
+                        <button
+                            onClick={() =>
+                                dispatch({
+                                    type: 'set-activeId',
+                                    payload: { id: activity.id },
+                                })
+                            }
+                        >
+                            <PencilSquareIcon
+                                className={`h-8 w-8 text-gray-400 hover:text-lime-500`}
+                            />
+                        </button>
+                        <button
+                            onClick={() =>
+                                dispatch({
+                                    type: 'delete-activity',
+                                    payload: { id: activity.id },
+                                })
+                            }
+                        >
+                            <TrashIcon
+                                className={`h-8 w-8 text-gray-400 hover:text-red-400`}
+                            />
+                        </button>
+                    </div>
                 </div>
             ))}
         </>
